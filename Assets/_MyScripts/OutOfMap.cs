@@ -2,6 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FuoriMappa : MonoBehaviour
+public class OutOfMap : MonoBehaviour
 {
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class CharacterMotions : MonoBehaviour
 {
     Rigidbody2D rigid;
-    Pavimento ground;
+    Platform ground;
     SpriteRenderer sprite;
     [Header("Movement")]
     public float speed = 5f;
@@ -21,7 +21,7 @@ public class CharacterMotions : MonoBehaviour
     private void Start() {
         rigid = GetComponent<Rigidbody2D>();
         //ne trova uno solo
-        ground = FindObjectOfType<Pavimento>();
+        ground = FindObjectOfType<Platform>();
         sprite = GetComponent<SpriteRenderer>();
     }
 
@@ -32,7 +32,7 @@ public class CharacterMotions : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D collision) {
-        if(collision.GetComponent<FuoriMappa>() != null) {
+        if(collision.GetComponent<OutOfMap>() != null) {
             Instantiate(explosion, transform.position, Quaternion.Euler(-90, 0, 0));
             Destroy(gameObject);
         }

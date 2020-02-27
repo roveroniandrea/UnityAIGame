@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Pavimento : MonoBehaviour
+public class Platform : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
