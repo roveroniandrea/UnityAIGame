@@ -11,10 +11,6 @@ public class AIController : MonoBehaviour
     public bool use16Raycasts = false;
     public float rayDistance = 20f;
 
-    [Header("Particles")]
-    public ParticleSystem hitParticles;
-    public float relativeHitToSpawnParticles = 10f;
-
     private void Start() {
         characterMotions = GetComponent<CharacterMotions>();
     }
@@ -40,20 +36,11 @@ public class AIController : MonoBehaviour
                 }
             }
             inputResult.Add(1f - platformDistance / rayDistance);
-            Debug.DrawLine(transform.position, transform.position + new Vector3(rayDirection.x, rayDirection.y, 0) * platformDistance, Color.black);
+            //Debug.DrawLine(transform.position, transform.position + new Vector3(rayDirection.x, rayDirection.y, 0) * platformDistance, Color.black);
             inputResult.Add(1f - outOfMapDistance / rayDistance);
-            Debug.DrawLine(transform.position, transform.position + new Vector3(rayDirection.x, rayDirection.y, 0) * outOfMapDistance, Color.red);
+            //Debug.DrawLine(transform.position, transform.position + new Vector3(rayDirection.x, rayDirection.y, 0) * outOfMapDistance, Color.red);
         }
         //TODO:
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision) {
-        if(collision.gameObject.GetComponent<CharacterMotions>() != null) {
-            Vector2 relativeHit = collision.relativeVelocity;
-            if(relativeHit.magnitude > relativeHitToSpawnParticles) {
-                Instantiate(hitParticles, collision.GetContact(0).point, Quaternion.identity);
-            }
-        }
     }
 
     int CompareHitsByDistance(RaycastHit2D hit1, RaycastHit2D hit2) {

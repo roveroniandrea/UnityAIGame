@@ -6,12 +6,7 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     CharacterMotions characterMotions;
-    /*
-    public Button jumpButton;
-    public Button leftButton;
-    public Button rightButton;
-    public Button punchButton;
-    public Button dashButton;*/
+    
     bool jumpButtonClicked = false;
     bool leftButtonDown = false;
     bool rightButtonDown = false;
@@ -24,6 +19,18 @@ public class Player : MonoBehaviour
         characterMotions = GetComponent<CharacterMotions>();
     }
 
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            jumpButtonClicked = true;
+        }
+        if (Input.GetKeyDown(KeyCode.P)) {
+            dashButtonClicked = true;
+        }
+        if (Input.GetKeyDown(KeyCode.L)) {
+            punchButtonClicked = true;
+        }
+    }
+
     private void FixedUpdate() {
         float inputX = GetHorizontalInputs();
         if (inputX != 0) {
@@ -33,13 +40,15 @@ public class Player : MonoBehaviour
             characterMotions.ContrastMovement();
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) || jumpButtonClicked) {
+        if (jumpButtonClicked) {
             characterMotions.Jump();
         }
-        if (Input.GetKeyDown(KeyCode.P) || dashButtonClicked) {
+        if (dashButtonClicked) {
             characterMotions.Dash();
         }
-        //TODO: punch
+        if (punchButtonClicked) {
+            characterMotions.Punch();
+        }
         jumpButtonClicked = false;
         dashButtonClicked = false;
         punchButtonClicked = false;
