@@ -45,6 +45,7 @@ public class CharacterMotions : MonoBehaviour
 
     [Header("Other")]
     public ParticleSystem explosion;
+    Animator animator;
 
     private void Start() {
         rigid = GetComponent<Rigidbody2D>();
@@ -52,6 +53,7 @@ public class CharacterMotions : MonoBehaviour
         ground = FindObjectOfType<Platform>();
         sprite = GetComponent<SpriteRenderer>();
         uIdamage = FindObjectOfType<UIdamagePlacement>().CreateUIdamage(maxDamage);
+        animator = GetComponent<Animator>();
     }
 
     private void Update() {
@@ -77,6 +79,9 @@ public class CharacterMotions : MonoBehaviour
         //TODO: rifare senza singolo ground
         if (rigid.IsTouching(ground.GetComponent<Collider2D>())) {
             rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            if(animator != null) {
+                animator.SetBool("Jumping", true);
+            }
         }
     }
 
@@ -84,6 +89,9 @@ public class CharacterMotions : MonoBehaviour
         bool differentSigns = Mathf.Sign(rigid.velocity.x) != Mathf.Sign(input);
         if (differentSigns || Mathf.Abs(rigid.velocity.x) < maxHorizontalSpeed) {
             rigid.AddForce(Vector2.right * input * speed, ForceMode2D.Impulse);
+        }
+        if (animator != null) {
+            animator.SetBool("Walking", true);
         }
     }
 
@@ -93,6 +101,9 @@ public class CharacterMotions : MonoBehaviour
             int direction = sprite.flipX ? -1 : 1;
             rigid.AddForce(new Vector2(direction, 0) * dashForce, ForceMode2D.Impulse);
             dashReadyIn = dashCooldown;
+            if (animator != null) {
+                animator.SetTrigger("Dash");
+            }
         }
     }
 
@@ -107,12 +118,18 @@ public class CharacterMotions : MonoBehaviour
                 }
             }
             punchReadyIn = punchCooldown;
+            if (animator != null) {
+                animator.SetTrigger("Punch");
+            }
         }
     }
 
     public void ContrastMovement() {
         if (contrastHMovement) {
             rigid.AddForce(Vector2.left * rigid.velocity.x * contrastStrength, ForceMode2D.Force);
+        }
+        if (animator != null) {
+            animator.SetBool("Walking", false);
         }
     }
 
@@ -141,6 +158,11 @@ public class CharacterMotions : MonoBehaviour
         else {
             if (collision.gameObject.GetComponent<Platform>() && isGoingRapidDown) {
                 EndRapidDown(true);
+            }
+        }
+        if(rigid.velocity.y >= -0.1f) {
+            if (animator != null) {
+                animator.SetBool("Jumping", false);
             }
         }
     }
