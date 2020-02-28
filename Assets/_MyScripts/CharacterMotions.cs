@@ -8,16 +8,33 @@ public class CharacterMotions : MonoBehaviour
     Rigidbody2D rigid;
     Platform ground;
     SpriteRenderer sprite;
+    Vector2 previousVelocity;
+
     [Header("Movement")]
     public float speed = 5f;
     public float maxHorizontalSpeed = 10f;
+    public bool contrastHMovement = true;
+    public float contrastStrength = 1f;
+
+    [Header("Jumping")]
     public float jumpForce = 5.0f;
+
+    [Header("Dashing")]
     public float dashForce = 15f;
+    public float dashCooldown = 2f;
+    float dashReadyIn = 0f;
+
+    [Header("Punching")]
     public float punchForce = 5f;
     public float punchRange = 0.5f;
-    public bool contrastMovement = true;
-    public float contrastStrength = 1f;
-    Vector2 previousVelocity;
+    public float punchCooldown = 0.5f;
+    float punchReadyIn = 0f;
+
+    [Header("Rapid down")]
+    public float rapidDownStrength = 4f;
+    public float rapidDownAOF = 1.5f;
+    public float rapidDownAOFStrength = 10f;
+    bool isGoingRapidDown = false;
 
     [Header("Hits")]
     public ParticleSystem hitParticles;
@@ -38,8 +55,14 @@ public class CharacterMotions : MonoBehaviour
     }
 
     private void Update() {
-        if(Mathf.Abs(rigid.velocity.x) > 0.01) {
+        if(Mathf.Abs(rigid.velocity.x) > 0.1) {
             sprite.flipX = rigid.velocity.x < 0;
+        }
+        if(dashReadyIn > 0f) {
+            dashReadyIn -= Time.deltaTime;
+        }
+        if(punchReadyIn > 0f) {
+            punchReadyIn -= Time.deltaTime;
         }
     }
 
@@ -51,6 +74,7 @@ public class CharacterMotions : MonoBehaviour
     }
 
     public void Jump() {
+        //TODO: rifare senza singolo ground
         if (rigid.IsTouching(ground.GetComponent<Collider2D>())) {
             rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
@@ -64,31 +88,40 @@ public class CharacterMotions : MonoBehaviour
     }
 
     public void Dash() {
-        //dash nella direzione del flipped
-        int direction = sprite.flipX ? -1 : 1;
-        rigid.AddForce(new Vector2(direction, 0) * dashForce, ForceMode2D.Impulse);
+        if(dashReadyIn <= 0f) {
+            //dash nella direzione del flipped
+            int direction = sprite.flipX ? -1 : 1;
+            rigid.AddForce(new Vector2(direction, 0) * dashForce, ForceMode2D.Impulse);
+            dashReadyIn = dashCooldown;
+        }
     }
 
     public void Punch() {
-        int direction = sprite.flipX ? -1 : 1;
-        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, Vector2.right * direction, punchRange);
-        foreach (RaycastHit2D hit in hits) {
-            CharacterMotions other = hit.transform.GetComponent<CharacterMotions>();
-            if (other != null) {
-                other.Hitted(punchForce, direction);
+        if(punchReadyIn <= 0f) {
+            int direction = sprite.flipX ? -1 : 1;
+            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, Vector2.right * direction, punchRange);
+            foreach (RaycastHit2D hit in hits) {
+                CharacterMotions other = hit.transform.GetComponent<CharacterMotions>();
+                if (other != null) {
+                    other.Hitted(punchForce, Vector2.right * direction);
+                }
             }
+            punchReadyIn = punchCooldown;
         }
-
     }
 
     public void ContrastMovement() {
-        if (contrastMovement) {
+        if (contrastHMovement) {
             rigid.AddForce(Vector2.left * rigid.velocity.x * contrastStrength, ForceMode2D.Force);
         }
     }
 
     private void FixedUpdate() {
         previousVelocity = rigid.velocity;
+
+        if (isGoingRapidDown) {
+            rigid.AddForce(Vector2.down * rapidDownStrength, ForceMode2D.Impulse);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision) {
@@ -98,17 +131,53 @@ public class CharacterMotions : MonoBehaviour
             float resultingMagnitude = (collision.relativeVelocity + previousVelocity).magnitude;
             if (resultingMagnitude >= minHitToDamage) {
                 //Debug.Log(name + " prendo danno " + (collision.relativeVelocity + previousVelocity).magnitude);
-                Hitted(resultingMagnitude);
+                Hitted(resultingMagnitude, Vector2.zero);
+            }
+            //TODO: colpire in volo causa hitted + EndRapid Down
+            if (isGoingRapidDown) {
+                EndRapidDown(false);
+            }
+        }
+        else {
+            if (collision.gameObject.GetComponent<Platform>() && isGoingRapidDown) {
+                EndRapidDown(true);
             }
         }
     }
 
-    public void Hitted(float amount, int punchDirection = 0) {
+    public void Hitted(float amount, Vector2 preciseDirection) {
         Instantiate(hitParticles, transform.position, Quaternion.identity);
-        Vector2 forceDirection = punchDirection == 0 ? rigid.velocity.normalized : Vector2.right * punchDirection;
+        Vector2 forceDirection = preciseDirection;
+        if(forceDirection == Vector2.zero) {
+            forceDirection = rigid.velocity.normalized;
+        }
         rigid.AddForce(forceDirection * (1 + damage / 100f) * amount, ForceMode2D.Impulse);
         damage += Mathf.RoundToInt(amount);
         damage = Mathf.Clamp(damage, 0, maxDamage);
         uIdamage.UpdateDamage(damage, maxDamage);
+    }
+
+    public void StartRapidDown() {
+        if (!isGoingRapidDown) {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 1f);
+            if(!hit || hit.transform.GetComponent<Platform>() == null) {
+                Debug.Log("rapid down");
+                isGoingRapidDown = true;
+            }
+        }
+    }
+
+    void EndRapidDown(bool hittedGround) {
+        isGoingRapidDown = false;
+        Collider2D[] overlapColliders = Physics2D.OverlapCircleAll(transform.position, rapidDownAOF);
+        foreach (Collider2D coll in overlapColliders) {
+            CharacterMotions other = coll.GetComponent<CharacterMotions>();
+            if (coll.gameObject != gameObject && other) {
+                Vector2 positionDifference = coll.transform.position - transform.position;
+                Vector2 forceDirection = positionDifference * 1f / positionDifference.magnitude;
+                Debug.Log("end rapid down " + forceDirection + "m:" + forceDirection.magnitude);
+                other.Hitted(rapidDownAOFStrength, forceDirection);
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     bool rightButtonDown = false;
     bool punchButtonClicked = false;
     bool dashButtonClicked = false;
+    bool rapidDownButtonClicked = false;
 
     // Start is called before the first frame update
     void Start()
@@ -20,14 +21,17 @@ public class Player : MonoBehaviour
     }
 
     private void Update() {
-        if (Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetKeyDown(KeyCode.W)) {
             jumpButtonClicked = true;
         }
-        if (Input.GetKeyDown(KeyCode.P)) {
+        if (Input.GetKeyDown(KeyCode.Space)) {
             dashButtonClicked = true;
         }
-        if (Input.GetKeyDown(KeyCode.L)) {
+        if (Input.GetKeyDown(KeyCode.P)) {
             punchButtonClicked = true;
+        }
+        if (Input.GetKeyDown(KeyCode.S)) {
+            rapidDownButtonClicked = true;
         }
     }
 
@@ -49,9 +53,14 @@ public class Player : MonoBehaviour
         if (punchButtonClicked) {
             characterMotions.Punch();
         }
+        if (rapidDownButtonClicked) {
+            characterMotions.StartRapidDown();
+        }
+
         jumpButtonClicked = false;
         dashButtonClicked = false;
         punchButtonClicked = false;
+        rapidDownButtonClicked = false;
     }
 
     float GetHorizontalInputs() {
@@ -97,5 +106,9 @@ public class Player : MonoBehaviour
 
     public void DashButtonClicked() {
         dashButtonClicked = true;
+    }
+
+    public void RapidDownButtonClicked() {
+        rapidDownButtonClicked = true;
     }
 }
