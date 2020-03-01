@@ -46,6 +46,7 @@ public class CharacterMotions : MonoBehaviour
     [Header("Other")]
     public ParticleSystem explosion;
     Animator animator;
+    public string team = "Enemy";
 
     private void Start() {
         rigid = GetComponent<Rigidbody2D>();
