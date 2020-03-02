@@ -707,7 +707,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 12.04}
+  m_Size: {x: 6.28, y: 13.04}
   m_EdgeRadius: 0
 --- !u!4 &519637848
 Transform:
@@ -717,7 +717,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519637845}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -10.74, y: 0, z: 0}
+  m_LocalPosition: {x: -11.93, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1622911190}
@@ -749,7 +749,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 617736103}
   m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -4.35, z: 0}
+  m_LocalPosition: {x: 0, y: -6.34, z: 0}
   m_LocalScale: {x: 1, y: 1.750001, z: 1}
   m_Children: []
   m_Father: {fileID: 1622911190}
@@ -791,7 +791,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 12.04}
+  m_Size: {x: 6.28, y: 13.04}
   m_EdgeRadius: 0
 --- !u!1 &709545497
 GameObject:
@@ -948,7 +948,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 750992773}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10.56, y: 0, z: 0}
+  m_LocalPosition: {x: 11.92, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1622911190}
@@ -990,7 +990,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 12.04}
+  m_Size: {x: 6.28, y: 13.04}
   m_EdgeRadius: 0
 --- !u!1 &1030406929
 GameObject:
@@ -1184,7 +1184,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 1105799813}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: e2b8995b819752d488cc38a7aa517f8d, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -1259,7 +1259,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1105799813}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.516673, y: -0.36, z: 0}
+  m_LocalPosition: {x: 5.65, y: -1.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1280,6 +1280,14 @@ MonoBehaviour:
   use16Raycasts: 0
   rayDistance: 20
   networkScriptable: {fileID: 11400000, guid: 07ef50fe8a749e94c83c55ec0a9121a5, type: 2}
+  myNeuralNetwork:
+    inputNeurons:
+      neurons: []
+    hiddenLayers: []
+    outputNeurons:
+      neurons: []
+  learnMethod: 1
+  freezeMotions: 0
   networkEvaluated: []
 --- !u!114 &1105799820
 MonoBehaviour:
@@ -1296,14 +1304,18 @@ MonoBehaviour:
   speed: 2
   maxHorizontalSpeed: 8
   contrastHMovement: 1
-  contrastStrength: 2
+  contrastStrength: 6
   jumpForce: 7
+  jumpCooldown: 0.2
+  jumpReadyIn: 0
   dashForce: 30
   dashCooldown: 2
+  dashReadyIn: 0
   punchForce: 6
   punchRange: 1.5
   punchCooldown: 0.3
-  rapidDownStrength: 5
+  punchReadyIn: 0
+  rapidDownStrength: 2.5
   rapidDownAOF: 2.5
   rapidDownAOFStrength: 10
   hitParticles: {fileID: 4716912618038511186, guid: 094458da9206fd444998f386acf70403,
@@ -1767,7 +1779,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1481235695}
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 6.23, z: 0}
+  m_LocalPosition: {x: 0, y: 7.98, z: 0}
   m_LocalScale: {x: 1, y: 1.75, z: 1}
   m_Children: []
   m_Father: {fileID: 1622911190}
@@ -1809,7 +1821,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 12.04}
+  m_Size: {x: 6.28, y: 13.04}
   m_EdgeRadius: 0
 --- !u!1 &1622911189
 GameObject:
@@ -1965,14 +1977,18 @@ MonoBehaviour:
   speed: 2
   maxHorizontalSpeed: 8
   contrastHMovement: 1
-  contrastStrength: 2
+  contrastStrength: 6
   jumpForce: 7
+  jumpCooldown: 0.2
+  jumpReadyIn: 0
   dashForce: 30
   dashCooldown: 2
+  dashReadyIn: 0
   punchForce: 6
   punchRange: 1.5
   punchCooldown: 0.3
-  rapidDownStrength: 5
+  punchReadyIn: 0
+  rapidDownStrength: 2.5
   rapidDownAOF: 2.5
   rapidDownAOFStrength: 10
   hitParticles: {fileID: 4716912618038511186, guid: 094458da9206fd444998f386acf70403,
@@ -2013,7 +2029,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 1627416440}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: e2b8995b819752d488cc38a7aa517f8d, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -2183,7 +2199,7 @@ MonoBehaviour:
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
+    m_ColorMultiplier: 1.63
     m_FadeDuration: 0.1
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}

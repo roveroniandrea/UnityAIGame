@@ -6,7 +6,6 @@ using UnityEditor;
 public class CharacterMotions : MonoBehaviour
 {
     Rigidbody2D rigid;
-    Platform ground;
     SpriteRenderer sprite;
     Vector2 previousVelocity;
 
@@ -18,17 +17,19 @@ public class CharacterMotions : MonoBehaviour
 
     [Header("Jumping")]
     public float jumpForce = 5.0f;
+    public float jumpCooldown = 0.2f;
+    public float jumpReadyIn = 0f;
 
     [Header("Dashing")]
     public float dashForce = 15f;
     public float dashCooldown = 2f;
-    float dashReadyIn = 0f;
+    public float dashReadyIn = 0f;
 
     [Header("Punching")]
     public float punchForce = 5f;
     public float punchRange = 0.5f;
     public float punchCooldown = 0.5f;
-    float punchReadyIn = 0f;
+    public float punchReadyIn = 0f;
 
     [Header("Rapid down")]
     public float rapidDownStrength = 4f;
@@ -50,22 +51,20 @@ public class CharacterMotions : MonoBehaviour
 
     private void Start() {
         rigid = GetComponent<Rigidbody2D>();
-        //ne trova uno solo
-        ground = FindObjectOfType<Platform>();
         sprite = GetComponent<SpriteRenderer>();
         uIdamage = FindObjectOfType<UIdamagePlacement>().CreateUIdamage(maxDamage);
         animator = GetComponent<Animator>();
     }
 
     private void Update() {
-        if(Mathf.Abs(rigid.velocity.x) > 0.1) {
-            sprite.flipX = rigid.velocity.x < 0;
-        }
         if(dashReadyIn > 0f) {
             dashReadyIn -= Time.deltaTime;
         }
         if(punchReadyIn > 0f) {
             punchReadyIn -= Time.deltaTime;
+        }
+        if(jumpReadyIn > 0f) {
+            jumpReadyIn -= Time.deltaTime;
         }
     }
 
@@ -77,8 +76,8 @@ public class CharacterMotions : MonoBehaviour
     }
 
     public void Jump() {
-        //TODO: rifare senza singolo ground
-        if (rigid.IsTouching(ground.GetComponent<Collider2D>())) {
+        if (jumpReadyIn <=0f && IsGrounded(includeCharacters: true)) {
+            jumpReadyIn = jumpCooldown;
             rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             if(animator != null) {
                 animator.SetBool("Jumping", true);
@@ -94,6 +93,7 @@ public class CharacterMotions : MonoBehaviour
         if (animator != null) {
             animator.SetBool("Walking", true);
         }
+        sprite.flipX = input < 0f;
     }
 
     public void Dash() {
@@ -126,11 +126,15 @@ public class CharacterMotions : MonoBehaviour
     }
 
     public void ContrastMovement() {
-        if (contrastHMovement) {
+        if (contrastHMovement && (dashCooldown - dashReadyIn >= 0.2f)) {
             rigid.AddForce(Vector2.left * rigid.velocity.x * contrastStrength, ForceMode2D.Force);
         }
         if (animator != null) {
             animator.SetBool("Walking", false);
+        }
+
+        if (Mathf.Abs(rigid.velocity.x) > 0.1) {
+            sprite.flipX = rigid.velocity.x < 0;
         }
     }
 
@@ -151,7 +155,6 @@ public class CharacterMotions : MonoBehaviour
                 //Debug.Log(name + " prendo danno " + (collision.relativeVelocity + previousVelocity).magnitude);
                 Hitted(resultingMagnitude, Vector2.zero);
             }
-            //TODO: colpire in volo causa hitted + EndRapid Down
             if (isGoingRapidDown) {
                 EndRapidDown(false);
             }
@@ -184,23 +187,36 @@ public class CharacterMotions : MonoBehaviour
         if (!isGoingRapidDown) {
             RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 1f);
             if(!hit || hit.transform.GetComponent<Platform>() == null) {
-                Debug.Log("rapid down");
+                //Debug.Log("rapid down");
                 isGoingRapidDown = true;
             }
         }
     }
 
-    void EndRapidDown(bool hittedGround) {
+    void EndRapidDown(bool dealDamage) {
         isGoingRapidDown = false;
-        Collider2D[] overlapColliders = Physics2D.OverlapCircleAll(transform.position, rapidDownAOF);
-        foreach (Collider2D coll in overlapColliders) {
-            CharacterMotions other = coll.GetComponent<CharacterMotions>();
-            if (coll.gameObject != gameObject && other) {
-                Vector2 positionDifference = coll.transform.position - transform.position;
-                Vector2 forceDirection = positionDifference * 1f / positionDifference.magnitude;
-                Debug.Log("end rapid down " + forceDirection + "m:" + forceDirection.magnitude);
-                other.Hitted(rapidDownAOFStrength, forceDirection);
+        if (dealDamage) {
+            Collider2D[] overlapColliders = Physics2D.OverlapCircleAll(transform.position, rapidDownAOF);
+            foreach (Collider2D coll in overlapColliders) {
+                CharacterMotions other = coll.GetComponent<CharacterMotions>();
+                if (coll.gameObject != gameObject && other) {
+                    Vector2 positionDifference = coll.transform.position - transform.position;
+                    Vector2 forceDirection = positionDifference * 1f / positionDifference.magnitude;
+                    //Debug.Log("end rapid down " + forceDirection + "m:" + forceDirection.magnitude);
+                    other.Hitted(rapidDownAOFStrength, forceDirection);
+                }
             }
         }
+    }
+
+    bool IsGrounded(bool includeCharacters = false) {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, GetComponent<BoxCollider2D>().size.y * 0.7f);
+        if (hit && hit.transform.GetComponent<Platform>()) {
+            return true;
+        }
+        if(includeCharacters && hit && hit.transform.GetComponent<CharacterMotions>()) {
+            return true;
+        }
+        return false;
     }
 }

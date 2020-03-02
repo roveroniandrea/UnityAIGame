@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: NN #1
   m_EditorClassIdentifier: 
   use16Raycasts: 0
-  inputLayerDim: 27
-  hiddenLayers: 0f000000
+  inputLayerDim: 32
+  hiddenLayers: 11000000
   outputLayerDim: 7
   hiddenLayersFunction: 4
   outputLayersFunction: 1
